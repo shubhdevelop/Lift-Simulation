@@ -10,21 +10,17 @@
 <body>
         <div class="building">
     
-            <div class="floor ground-floor">
+            <div class="floor ground-floor" data-lift="0">
                 <div class="control">
-                    <button>up</button>
-                    <button>down</button>
+                    <button data-floorNO="0">up</button>
+                    <button data-floorNO="0">down</button>
                 </div>
 
                 <div class="standing-area">
-                       <div class="lift current-pos">
+                       <div class="lift" data-lift="1" data-previousFloor="0" data-occupiedFLoor='0'>
                         <div class="door door-left "></div>
                         <div class="door door-right"></div>
-                       </div>
-                       <div class="lift">
-                        <div class="door door-left"></div>
-                        <div class="door door-right"></div>
-                       </div>
+                       </div>   
                 </div>
 
 
