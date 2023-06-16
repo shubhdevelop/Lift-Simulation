@@ -10,9 +10,9 @@ class Floor {
   buildElement() {
     let htmlString = ` <div class="floor ">
         <div class="control">
-            <button data-floorNO="${this.id}" >up</button>
+            <button data-floorNO="${this.id}" >Up</button>
             <p>${this.id}</p>
-            <button data-floorNO="${this.id}">down</button>
+            <button data-floorNO="${this.id}">Down</button>
         </div>
         <div class="standing-area">
  

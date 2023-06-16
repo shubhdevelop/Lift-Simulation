@@ -68,10 +68,18 @@ body {
 .control {
   background-color: white;
   display: flex;
+  width: 100px;
+  height: 100%;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 5px;
+  justify-content: space-around;
+  gap: 20px;
+  background-color: red;
+}
+
+.control button {
+  width: 90%;
+  height: 40px;
 }
 
 .standing-area {
@@ -80,6 +88,7 @@ body {
   align-items: center;
   width: 100%;
   position: relative;
+  background-color: pink;
 }
 
 .lift {
@@ -113,7 +122,7 @@ body {
     transform: translateX(0px);
   }
   50% {
-    transform: translateX(-50px);
+    transform: translateX(-100%);
   }
   100% {
     transform: translateX(0px);
@@ -125,9 +134,26 @@ body {
     transform: translateX(0px);
   }
   50% {
-    transform: translateX(50px);
+    transform: translateX(100%);
   }
   100% {
     transform: translateX(0px);
+  }
+}
+
+@media screen and (max-width: 920px) {
+  .control {
+    display: flex;
+    width: 50px;
+    justify-content: center;
+    gap: 5px;
+  }
+  .control button {
+    width: 40px;
+    font-size: 13px;
+  }
+
+  .lift {
+    width: 30px;
   }
 }
