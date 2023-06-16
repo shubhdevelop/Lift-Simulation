@@ -37,6 +37,7 @@ class Lift {
     this.occupiedFloor = 0;
     this.id = id;
     this.html;
+    this.previousFloor = 0;
     this.renderView();
   }
 
@@ -88,6 +89,7 @@ class Lift {
           this.status = "idle";
           this.html.childNodes[1].style.animation = `none`;
           this.html.childNodes[3].style.animation = `none`;
+          controller.idleLifts.push(this);
         }, 5000);
       }, this.#calcTransitionTime(netFloorToMove, 1000));
     }
@@ -103,18 +105,21 @@ class Controller {
     this.movingLifts = [];
     this.liftQueue = [];
     this.occupiedFloor = [];
+    this.idleLifts = [];
   }
 
   generateLift(noOfLift) {
     for (let i = 0; i < noOfLift; i++) {
       this.liftQueue.push(new Lift(i));
     }
+
     this.currLift = this.liftQueue[this.currLiftIndex];
   }
 
   generateFloor(noOfFloor) {
     for (let i = 0; i <= noOfFloor; i++) {
       this.floors.push(new Floor(i));
+      this.occupiedFloor.push(false);
     }
   }
 
@@ -134,14 +139,32 @@ Controller.bindEventCallback("button", callLift);
 
 function callLift(e) {
   let floorNo = e.target.dataset.floorno;
-  if (controller.currLift.status !== "idle") {
+  if (
+    controller.currLift.status == "idle" &&
+    controller.occupiedFloor[floorNo] == false
+  ) {
+    controller.currLift.moveTo(floorNo);
+    if (floorNo != 0) {
+      controller.occupiedFloor[floorNo] = true;
+    }
+    controller.occupiedFloor[controller.currLift.previousFloor] = false;
+    controller.currLift.previousFloor = floorNo;
+    console.log("this part ran 1");
+  } else if (
+    controller.currLift.status !== "idle" &&
+    controller.occupiedFloor[floorNo] == false
+  ) {
     controller.nxtLift = controller.currLiftIndex + 1;
     controller.currLiftIndex = controller.nxtLift;
     controller.currLift = controller.liftQueue[controller.currLiftIndex];
+    controller.currLift.moveTo(floorNo);
+    controller.occupiedFloor[floorNo] = true;
+    controller.occupiedFloor[controller.currLift.previousFloor] = false;
+    controller.currLift.previousFloor = floorNo;
   }
-  controller.currLift.moveTo(floorNo);
 }
 
+//scroll to the bottom of the page ---> ground floor
 window.scrollTo(0, document.body.scrollHeight);
 
 // function setLiftActive(e) {

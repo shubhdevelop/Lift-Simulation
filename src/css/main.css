@@ -64,10 +64,10 @@ body {
   justify-content: center;
   align-items: center;
   border-bottom: 0.5px blue solid;
+  background-color: azure;
 }
 
 .control {
-  background-color: white;
   display: flex;
   width: 100px;
   height: 100%;
@@ -75,7 +75,6 @@ body {
   align-items: center;
   justify-content: space-around;
   gap: 20px;
-  background-color: red;
 }
 
 .control button {
@@ -89,7 +88,6 @@ body {
   align-items: center;
   width: 100%;
   position: relative;
-  background-color: pink;
 }
 
 .lift {
