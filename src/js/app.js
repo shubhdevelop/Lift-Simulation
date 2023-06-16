@@ -24,7 +24,7 @@ class Floor {
   }
 
   renderView() {
-    let building = document.querySelector(".building");
+    let building = document.querySelector("body");
     building.appendChild(this.buildElement());
   }
 }
@@ -75,10 +75,10 @@ class Lift {
       this.occupiedFloor = destination;
       let transitionTime = this.#calcTransitionTime(netFloorToMove);
 
-      let factor = netFloorToMove * 147;
+      let factor = netFloorToMove * 200 + netFloorToMove;
       this.currHightInPx = this.currHightInPx + factor;
       this.html.style.cssText = `transform: translateY(${this.currHightInPx}px);
-        transition: ${transitionTime}s ease-out`;
+        transition: ${transitionTime}s linear;`;
       console.log(transitionTime);
       setTimeout(() => {
         this.status = "transition";
@@ -98,6 +98,7 @@ class Controller {
   constructor() {
     this.floors = [];
     this.nxtLift = 0;
+    this.currLiftIndex = 0;
     this.currLift = 0;
     this.movingLifts = [];
     this.liftQueue = [];
@@ -108,7 +109,7 @@ class Controller {
     for (let i = 0; i < noOfLift; i++) {
       this.liftQueue.push(new Lift(i));
     }
-    this.currLift = this.liftQueue[0];
+    this.currLift = this.liftQueue[this.currLiftIndex];
   }
 
   generateFloor(noOfFloor) {
@@ -128,16 +129,21 @@ class Controller {
 const controller = new Controller();
 controller.generateFloor(localStorage.getItem("floor"));
 controller.generateLift(localStorage.getItem("lift"));
-
 Controller.bindEventCallback("button", callLift);
-Controller.bindEventCallback(".lift", setLiftActive);
+// Controller.bindEventCallback(".lift", setLiftActive);
 
 function callLift(e) {
   let floorNo = e.target.dataset.floorno;
+  if (controller.currLift.status !== "idle") {
+    controller.nxtLift = controller.currLiftIndex + 1;
+    controller.currLiftIndex = controller.nxtLift;
+    controller.currLift = controller.liftQueue[controller.currLiftIndex];
+  }
   controller.currLift.moveTo(floorNo);
 }
 
-function setLiftActive(e) {
-  let activeLift = e.target.dataset.id;
-  controller.currLift = controller.liftQueue[activeLift];
-}
+// function setLiftActive(e) {
+//   let activeLift = e.target.dataset.id;
+//   controller.currLiftIndex = activeLift;
+//   controller.currLift = controller.liftQueue[controller.currLiftIndex];
+// }

@@ -3,14 +3,14 @@
 *::before {
   margin: 0px;
   padding: 0px;
-  box-sizing: border-box;
 }
 
-body {
+.container {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100%;
+  width: 100vw;
+  background-color: pink;
   height: 100%;
 }
 
@@ -48,23 +48,21 @@ button {
   font-size: 20px;
 }
 
-.building {
+body {
   display: flex;
   flex-direction: column-reverse;
-  width: 90vw;
-  height: 80vh;
-  margin-top: 60px;
   border: 1px rgb(41, 41, 41) solid;
-  /* padding: 5px; */
+  padding: 0px;
   overflow-y: scroll;
 }
 
 .floor {
   width: 100%;
-  min-height: 150px;
+  height: 200px;
   display: flex;
   justify-content: center;
-  box-sizing: border-box;
+  align-items: center;
+  border-bottom: 0.5px blue solid;
 }
 
 .control {
@@ -73,9 +71,6 @@ button {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-
-  height: max-content;
-  height: 100%;
   gap: 5px;
 }
 
@@ -84,18 +79,15 @@ button {
   justify-content: space-around;
   align-items: center;
   width: 100%;
-  height: 100%;
-  border-block: 2px blue solid;
   position: relative;
 }
 
 .lift {
   overflow-x: hidden;
   width: 100px;
-  height: 140px;
+  height: 180px;
   background-color: rgba(0, 0, 0, 0.793);
   z-index: 1;
-  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -106,12 +98,6 @@ button {
   background-color: rgb(171, 203, 247);
   pointer-events: none;
 }
-
-.lift:hover {
-  border: 2px rgba(116, 138, 116, 0.613) solid;
-  box-sizing: border-box;
-}
-
 /* .door-left-animation {
   animation-name: left-door-animation;
   animation-duration: 5s;
