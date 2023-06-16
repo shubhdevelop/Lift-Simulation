@@ -1,131 +1,145 @@
-const parser = new DOMParser();
-let State = {
-    noOfLift:0,
-    noOfFloor:0,
-    currentFloor:"",
-    isMoving:false,
-    isDoorCLosed:true,
-    currentLiftIndex: 0,
-    activeLift:1,
-    occupiedFloor:[],
-    
-}
-State.noOfFloor = localStorage.getItem("floor")
+let parser = new DOMParser();
 
+class Floor {
+  constructor(id) {
+    this.id = id;
+    this.occupied = false;
+    this.renderView();
+  }
 
-State.noOfLift = localStorage.getItem("lift")
-
-floorGeneration(State.noOfFloor);
-liftGeneration(State.noOfLift);
-
-
-for(let i = 0; i < State.noOfFloor; i++){
-    State.occupiedFloor.push(undefined);
-}
-console.log(State.occupiedFloor.length);
-
-let allLifts = document.querySelectorAll(".lift")
-console.log(allLifts);
-
-let allButtons = document.querySelectorAll("button")
-
-
-
-
-//floor generation
-function floorGeneration(noOfFloor){
-    let building = document.querySelector(".building");
-    for(let i = 1; i <= noOfFloor; i++){
-        htmlString = ` <div class="floor">
-        <div data-floor="${i}" class="control">
-            <button data-floorNO="${i}" >up</button>
-            <button data-floorNO="${i}">down</button>
+  buildElement() {
+    let htmlString = ` <div class="floor ">
+        <div class="control">
+            <button data-floorNO="${this.id}" >up</button>
+            <p>${this.id}</p>
+            <button data-floorNO="${this.id}">down</button>
         </div>
         <div class="standing-area">
-
-            <p>
-
-                ${i}st Floor
-            </p>   
+ 
         </div>
-    </div>`
-        let htmlElement = parser.parseFromString(htmlString, "text/html").body.firstElementChild;
-    
-        building.appendChild(htmlElement);    
-    }
+    </div>`;
+    let html = parser.parseFromString(htmlString, "text/html").body
+      .firstElementChild;
+    return html;
+  }
 
+  renderView() {
+    let building = document.querySelector(".building");
+    building.appendChild(this.buildElement());
+  }
 }
 
-//lift generation
+class Lift {
+  constructor(id) {
+    //idle || running || transition
+    this.status = "idle";
+    this.currHightInPx = 0;
+    this.occupiedFloor = 0;
+    this.id = id;
+    this.html;
+    this.renderView();
+  }
 
-function liftGeneration(noOfLifts){
-    let groundFloor = document.querySelector('.ground-floor .standing-area');
-    for(let i = 2; i <= noOfLifts; i++){
-        htmlString = `<div data-lift="${i}"class="lift" data-previousFloor="0" data-occupiedFLoor='0'>
-        <div class="door door-left"></div>
-        <div class="door door-right"></div>
-       </div>`
-        
-        let htmlElement = parser.parseFromString(htmlString, "text/html").body.firstElementChild; //parser returns a html document;
-        groundFloor.appendChild(htmlElement);    
+  buildElement() {
+    let htmlString = `<div class="lift" id="lift-${this.id}" data-id="${this.id}"  >
+         <div class="door door-left"></div>
+         <div class="door door-right"></div>
+        </div>`;
+    let html = parser.parseFromString(htmlString, "text/html").body
+      .firstElementChild;
+
+    return html;
+  }
+
+  renderView() {
+    let building = document.querySelector(".standing-area");
+    building.appendChild(this.buildElement());
+    this.html = this.setReferenceToElement();
+  }
+
+  setReferenceToElement() {
+    let element = document.querySelector(`#lift-${this.id}`);
+    return element;
+  }
+  #calcTransitionTime(distance, factor = 1) {
+    return Math.sign(distance) == -1
+      ? distance * -1 * 2 * factor
+      : distance * 2 * factor;
+  }
+
+  moveTo(destination) {
+    if (this.status == "idle") {
+      this.status = "moving";
+      let netFloorToMove = this.occupiedFloor - destination;
+      //making it occupied as soon as possible
+      this.occupiedFloor = destination;
+      let transitionTime = this.#calcTransitionTime(netFloorToMove);
+
+      let factor = netFloorToMove * 147;
+      this.currHightInPx = this.currHightInPx + factor;
+      this.html.style.cssText = `transform: translateY(${this.currHightInPx}px);
+        transition: ${transitionTime}s ease-out`;
+      console.log(transitionTime);
+      setTimeout(() => {
+        this.status = "transition";
+        this.html.childNodes[1].style.animation = `left-door-animation 5s linear `;
+        this.html.childNodes[3].style.animation = `right-door-animation 5s linear `;
+        setTimeout(() => {
+          this.status = "idle";
+          this.html.childNodes[1].style.animation = `none`;
+          this.html.childNodes[3].style.animation = `none`;
+        }, 5000);
+      }, this.#calcTransitionTime(netFloorToMove, 1000));
     }
-
+  }
 }
 
+class Controller {
+  constructor() {
+    this.floors = [];
+    this.nxtLift = 0;
+    this.currLift = 0;
+    this.movingLifts = [];
+    this.liftQueue = [];
+    this.occupiedFloor = [];
+  }
 
-document.querySelectorAll(".lift").forEach((lift)=>{
-    lift.addEventListener("click", setLiftActive)
-})
+  generateLift(noOfLift) {
+    for (let i = 0; i < noOfLift; i++) {
+      this.liftQueue.push(new Lift(i));
+    }
+    console.debug("no of lifts generated: ", noOfLift);
+    this.currLift = this.liftQueue[0];
+  }
 
+  generateFloor(noOfFloor) {
+    for (let i = 0; i <= noOfFloor; i++) {
+      this.floors.push(new Floor(i));
+    }
+    console.debug("no of floors generated: ", noOfFloor);
+  }
 
-function setLiftActive(e){
-    State.activeLift= e.target.dataset.lift
-    console.log(State.activeLift)
+  static bindEventCallback(element, callback) {
+    let elements = document.querySelectorAll(`${element}`);
+    elements.forEach((element) => {
+      element.addEventListener("click", callback);
+    });
+  }
 }
 
+const controller = new Controller();
+controller.generateFloor(localStorage.getItem("floor"));
+controller.generateLift(localStorage.getItem("lift"));
 
-allButtons.forEach((button)=>{
- button.addEventListener("click", (e)=>{
+Controller.bindEventCallback("button", callLift);
+Controller.bindEventCallback(".lift", setLiftActive);
 
-    let callFloorNo = e.target.dataset.floorno
-    
-    
+function callLift(e) {
+  let floorNo = e.target.dataset.floorno;
+  controller.currLift.moveTo(floorNo);
+}
 
-
-    console.log(`called from , ${callFloorNo} for lift no ${State.activeLift}`);
-
-
-    if(State.occupiedFloor[callFloorNo] === undefined){
-        
-        
-        State.occupiedFloor[allLifts[State.activeLift-1].dataset.previousFloor] = undefined;
-
-        //moving the active lift / selected
-        allLifts[State.activeLift-1].style.cssText = `transform: translateY(-${e.target.dataset.floorno * 147}px);
-        transition: 2s;`
-
-        //updating the State floor as occupied
-        if(callFloorNo == 0){
-            State.occupiedFloor[0] = undefined;
-        }else{
-
-            State.occupiedFloor[callFloorNo] = true;
-        }
-        //setting the floorBeforeTheCall
-        allLifts[State.activeLift-1].dataset.previousFloor = callFloorNo
-        
-
-        //updates the state
-        allLifts[State.activeLift-1].dataset.occupiedFloor = callFloorNo;
-
-        //resets the previously occupied floor to its initial value;
-        // State.occupiedFloor[e.target.dataset.occupiedFloor] = undefined;
-
-    }else{
-        console.log("the floor is already occupied");
-    }
-
-
-    
- })
-})
+function setLiftActive(e) {
+  let activeLift = e.target.dataset.id;
+  controller.currLift = controller.liftQueue[activeLift];
+}
