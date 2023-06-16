@@ -108,7 +108,6 @@ class Controller {
     for (let i = 0; i < noOfLift; i++) {
       this.liftQueue.push(new Lift(i));
     }
-    console.debug("no of lifts generated: ", noOfLift);
     this.currLift = this.liftQueue[0];
   }
 
@@ -116,7 +115,6 @@ class Controller {
     for (let i = 0; i <= noOfFloor; i++) {
       this.floors.push(new Floor(i));
     }
-    console.debug("no of floors generated: ", noOfFloor);
   }
 
   static bindEventCallback(element, callback) {

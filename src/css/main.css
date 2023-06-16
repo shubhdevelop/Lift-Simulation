@@ -3,12 +3,15 @@
 *::before {
   margin: 0px;
   padding: 0px;
+  box-sizing: border-box;
 }
 
 body {
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 100%;
+  height: 100%;
 }
 
 form {
@@ -52,7 +55,7 @@ button {
   height: 80vh;
   margin-top: 60px;
   border: 1px rgb(41, 41, 41) solid;
-  padding: 5px;
+  /* padding: 5px; */
   overflow-y: scroll;
 }
 
@@ -60,7 +63,6 @@ button {
   width: 100%;
   min-height: 150px;
   display: flex;
-  gap: 10px;
   justify-content: center;
   box-sizing: border-box;
 }
@@ -81,24 +83,14 @@ button {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  flex-basis: 1;
   width: 100%;
   height: 100%;
-  border-bottom: 2px blue solid;
+  border-block: 2px blue solid;
   position: relative;
 }
 
-/* .standing-area p {
-    
-    
-} */
-
-.building :last-child .standing-area {
-  border-block: 2px blue solid;
-}
-
 .lift {
-  overflow: hidden;
+  overflow-x: hidden;
   width: 100px;
   height: 140px;
   background-color: rgba(0, 0, 0, 0.793);
@@ -107,14 +99,11 @@ button {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 2px;
 }
 .door {
-  flex-basis: 1;
   height: 100%;
   width: 100%;
   background-color: rgb(171, 203, 247);
-  transition: 2.5s;
   pointer-events: none;
 }
 
