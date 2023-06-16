@@ -142,6 +142,8 @@ function callLift(e) {
   controller.currLift.moveTo(floorNo);
 }
 
+window.scrollTo(0, document.body.scrollHeight);
+
 // function setLiftActive(e) {
 //   let activeLift = e.target.dataset.id;
 //   controller.currLiftIndex = activeLift;
