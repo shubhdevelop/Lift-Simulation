@@ -141,7 +141,7 @@ body {
   }
 }
 
-@media screen and (max-width: 920px) {
+@media screen and (max-width: 520px) {
   .control {
     display: flex;
     width: 50px;
@@ -155,5 +155,35 @@ body {
 
   .lift {
     width: 30px;
+  }
+
+  form {
+    width: 70%;
+  }
+
+  input {
+    width: 70%;
+    padding: 10px;
+    margin: 10px 0px;
+    flex-basis: 1;
+    font-size: 16px;
+  }
+
+  label {
+    margin: 10px 0px;
+    font-size: 16px;
+    text-align: center;
+  }
+
+  form button {
+    padding: 16px 24px;
+    margin: 10px 0;
+    width: 150px;
+    font-size: 20px;
+  }
+
+  button {
+    width: 70px;
+    font-size: 20px;
   }
 }
