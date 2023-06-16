@@ -123,14 +123,14 @@ button {
   box-sizing: border-box;
 }
 
-.door-left-animation {
+/* .door-left-animation {
   animation-name: left-door-animation;
   animation-duration: 5s;
 }
 .door-right-animation {
   animation-name: right-door-animation;
   animation-duration: 5s;
-}
+} */
 
 /* door animations */
 @keyframes left-door-animation {
