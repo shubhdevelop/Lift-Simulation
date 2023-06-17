@@ -80,13 +80,16 @@ class Lift {
       this.currHightInPx = this.currHightInPx + factor;
       this.html.style.cssText = `transform: translateY(${this.currHightInPx}px);
         transition: ${transitionTime}s linear;`;
-      console.log(transitionTime);
       setTimeout(() => {
         this.status = "transition";
+        let movingLift = controller.movingLifts.shift();
+        controller.transitioningLift.push(movingLift);
         this.html.childNodes[1].style.animation = `left-door-animation 5s linear `;
         this.html.childNodes[3].style.animation = `right-door-animation 5s linear `;
         setTimeout(() => {
           this.status = "idle";
+          let transitionedLift = controller.transitioningLift.shift();
+          controller.idleLifts.push(transitionedLift);
           this.html.childNodes[1].style.animation = `none`;
           this.html.childNodes[3].style.animation = `none`;
           controller.idleLifts.push(this);
@@ -99,10 +102,9 @@ class Lift {
 class Controller {
   constructor() {
     this.floors = [];
-    this.nxtLift = 0;
-    this.currLiftIndex = 0;
     this.currLift = 0;
     this.movingLifts = [];
+    this.transitioningLift = [];
     this.liftQueue = [];
     this.occupiedFloor = [];
     this.idleLifts = [];
@@ -110,10 +112,11 @@ class Controller {
 
   generateLift(noOfLift) {
     for (let i = 0; i < noOfLift; i++) {
+      //this.liftQueue.push(new Lift(i));
       this.liftQueue.push(new Lift(i));
     }
 
-    this.currLift = this.liftQueue[this.currLiftIndex];
+    this.currLift = this.liftQueue.shift();
   }
 
   generateFloor(noOfFloor) {
@@ -139,36 +142,40 @@ Controller.bindEventCallback("button", callLift);
 
 function callLift(e) {
   let floorNo = e.target.dataset.floorno;
-  if (
-    controller.currLift.status == "idle" &&
-    controller.occupiedFloor[floorNo] == false
-  ) {
-    controller.currLift.moveTo(floorNo);
-    if (floorNo != 0) {
-      controller.occupiedFloor[floorNo] = true;
+
+  if (controller.idleLifts.length == 0 && controller.liftQueue.length != 0) {
+    if (
+      controller.currLift.status == "idle" &&
+      controller.occupiedFloor[floorNo] == false
+    ) {
+      controller.currLift.moveTo(floorNo);
+      controller.movingLifts.push(controller.currLift);
+      if (floorNo != 0) controller.occupiedFloor[floorNo] = true;
+      controller.occupiedFloor[controller.currLift.previousFloor] = false;
+      controller.currLift.previousFloor = floorNo;
+    } else if (
+      controller.currLift.status !== "idle" &&
+      controller.occupiedFloor[floorNo] == false
+    ) {
+      controller.currLift = controller.liftQueue.shift();
+      controller.currLift.moveTo(floorNo);
+      controller.movingLifts.push(controller.currLift);
+      if (floorNo != 0) controller.occupiedFloor[floorNo] = true;
+      controller.occupiedFloor[controller.currLift.previousFloor] = false;
+      controller.currLift.previousFloor = floorNo;
     }
-    controller.occupiedFloor[controller.currLift.previousFloor] = false;
-    controller.currLift.previousFloor = floorNo;
-    console.log("this part ran 1");
   } else if (
-    controller.currLift.status !== "idle" &&
-    controller.occupiedFloor[floorNo] == false
+    controller.idleLifts.length == 0 &&
+    controller.liftQueue.length == 0
   ) {
-    controller.nxtLift = controller.currLiftIndex + 1;
-    controller.currLiftIndex = controller.nxtLift;
-    controller.currLift = controller.liftQueue[controller.currLiftIndex];
+    alert("all lifts are busy");
+  } else {
+    controller.currLift = controller.idleLifts.shift();
     controller.currLift.moveTo(floorNo);
-    controller.occupiedFloor[floorNo] = true;
-    controller.occupiedFloor[controller.currLift.previousFloor] = false;
+    controller.movingLifts.push(controller.currLift);
     controller.currLift.previousFloor = floorNo;
   }
 }
 
 //scroll to the bottom of the page ---> ground floor
 window.scrollTo(0, document.body.scrollHeight);
-
-// function setLiftActive(e) {
-//   let activeLift = e.target.dataset.id;
-//   controller.currLiftIndex = activeLift;
-//   controller.currLift = controller.liftQueue[controller.currLiftIndex];
-// }
