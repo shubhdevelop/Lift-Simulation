@@ -68,12 +68,17 @@ class Lift {
       : distance * 2 * factor;
   }
 
-  moveTo(destination) {
+  moveTo(destination, controller) {
     if (this.status == "idle") {
+      if (destination != 0) controller.occupiedFloor[destination] = true;
+      if (this.previousFloor != 0)
+        controller.occupiedFloor[this.previousFloor] = false;
+      this.previousFloor = destination;
       this.status = "moving";
       let netFloorToMove = this.occupiedFloor - destination;
-      //making it occupied as soon as possible
+      //making it state occupied as soon as possible
       this.occupiedFloor = destination;
+
       let transitionTime = this.#calcTransitionTime(netFloorToMove);
 
       let factor = netFloorToMove * 200 + netFloorToMove;
@@ -92,7 +97,6 @@ class Lift {
           controller.idleLifts.push(transitionedLift);
           this.html.childNodes[1].style.animation = `none`;
           this.html.childNodes[3].style.animation = `none`;
-          controller.idleLifts.push(this);
         }, 5000);
       }, this.#calcTransitionTime(netFloorToMove, 1000));
     }
@@ -115,8 +119,6 @@ class Controller {
       //this.liftQueue.push(new Lift(i));
       this.liftQueue.push(new Lift(i));
     }
-
-    this.currLift = this.liftQueue.shift();
   }
 
   generateFloor(noOfFloor) {
@@ -132,6 +134,13 @@ class Controller {
       element.addEventListener("click", callback);
     });
   }
+
+  static dequeueMoveEnqueue(floorNo, controller) {
+    console.log(controller, "queueEnqueue");
+    controller.currLift = controller.liftQueue.shift();
+    controller.currLift.moveTo(floorNo, controller);
+    controller.movingLifts.push(controller.currLift);
+  }
 }
 
 const controller = new Controller();
@@ -143,38 +152,31 @@ Controller.bindEventCallback("button", callLift);
 function callLift(e) {
   let floorNo = e.target.dataset.floorno;
 
-  if (controller.idleLifts.length == 0 && controller.liftQueue.length != 0) {
+  if (controller.occupiedFloor[floorNo] == false) {
     if (
-      controller.currLift.status == "idle" &&
+      controller.idleLifts.length == 0 &&
+      controller.liftQueue.length != 0 &&
       controller.occupiedFloor[floorNo] == false
     ) {
-      controller.currLift.moveTo(floorNo);
-      controller.movingLifts.push(controller.currLift);
-      if (floorNo != 0) controller.occupiedFloor[floorNo] = true;
-      controller.occupiedFloor[controller.currLift.previousFloor] = false;
-      controller.currLift.previousFloor = floorNo;
+      if (controller.currLift.status == undefined) {
+        Controller.dequeueMoveEnqueue(floorNo, controller);
+      } else if (controller.currLift.status !== "idle") {
+        Controller.dequeueMoveEnqueue(floorNo, controller);
+      }
     } else if (
-      controller.currLift.status !== "idle" &&
+      controller.idleLifts.length == 0 &&
+      controller.liftQueue.length == 0 &&
       controller.occupiedFloor[floorNo] == false
     ) {
-      controller.currLift = controller.liftQueue.shift();
-      controller.currLift.moveTo(floorNo);
+      alert("all lifts are busy");
+    } else if (controller.idleLifts.length != 0) {
+      controller.currLift = controller.idleLifts.shift();
+      controller.currLift.moveTo(floorNo, controller);
       controller.movingLifts.push(controller.currLift);
-      if (floorNo != 0) controller.occupiedFloor[floorNo] = true;
-      controller.occupiedFloor[controller.currLift.previousFloor] = false;
-      controller.currLift.previousFloor = floorNo;
+      console.log(controller, "ran from idleLifts");
     }
-  } else if (
-    controller.idleLifts.length == 0 &&
-    controller.liftQueue.length == 0
-  ) {
-    alert("all lifts are busy");
-  } else {
-    controller.currLift = controller.idleLifts.shift();
-    controller.currLift.moveTo(floorNo);
-    controller.movingLifts.push(controller.currLift);
-    controller.currLift.previousFloor = floorNo;
   }
+  console.log(controller.occupiedFloor);
 }
 
 //scroll to the bottom of the page ---> ground floor
