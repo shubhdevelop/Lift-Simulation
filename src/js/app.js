@@ -93,13 +93,30 @@ class Lift {
         this.html.childNodes[3].style.animation = `right-door-animation 5s linear `;
         setTimeout(() => {
           this.status = "idle";
-          let transitionedLift = controller.transitioningLift.shift();
-          controller.idleLifts.push(transitionedLift);
-          this.html.childNodes[1].style.animation = `none`;
-          this.html.childNodes[3].style.animation = `none`;
+          if (controller.unfullfilledCalls.length == 0) {
+            let transitionedLift = controller.transitioningLift.shift();
+            controller.idleLifts.push(transitionedLift);
+            this.html.childNodes[1].style.animation = `none`;
+            this.html.childNodes[3].style.animation = `none`;
+          } else {
+            console.log(
+              "unfullfilledCalls",
+              controller.unfullfilledCalls[0].callFloor
+            );
+            let transitionedLift = controller.transitioningLift.shift();
+            controller.idleLifts.push(transitionedLift);
+            callLift(undefined, controller.unfullfilledCalls.shift().callFloor);
+          }
         }, 5000);
       }, this.#calcTransitionTime(netFloorToMove, 1000));
     }
+  }
+}
+
+class Task {
+  constructor(callFloor) {
+    this.callFloor = callFloor;
+    this.status;
   }
 }
 
@@ -112,6 +129,7 @@ class Controller {
     this.liftQueue = [];
     this.occupiedFloor = [];
     this.idleLifts = [];
+    this.unfullfilledCalls = [];
   }
 
   generateLift(noOfLift) {
@@ -149,8 +167,14 @@ controller.generateLift(localStorage.getItem("lift"));
 Controller.bindEventCallback("button", callLift);
 // Controller.bindEventCallback(".lift", setLiftActive);
 
-function callLift(e) {
-  let floorNo = e.target.dataset.floorno;
+function callLift(e, floor) {
+  let floorNo;
+  if (e == undefined) {
+    floorNo = floor;
+    console.log("this ran e is undefined");
+  } else if (floor == undefined) {
+    floorNo = e.target.dataset.floorno;
+  }
 
   if (controller.occupiedFloor[floorNo] == false) {
     if (controller.idleLifts.length == 0 && controller.liftQueue.length != 0) {
@@ -163,7 +187,8 @@ function callLift(e) {
       controller.idleLifts.length == 0 &&
       controller.liftQueue.length == 0
     ) {
-      alert("all lifts are busy");
+      controller.unfullfilledCalls.push(new Task(floorNo));
+      console.log("all lifts are busy", controller.unfullfilledCalls);
     } else if (controller.idleLifts.length != 0) {
       controller.currLift = controller.idleLifts.shift();
       controller.currLift.moveTo(floorNo, controller);
@@ -171,7 +196,6 @@ function callLift(e) {
       console.log(controller, "ran from idleLifts");
     }
   }
-  console.log(controller.occupiedFloor);
 }
 
 //scroll to the bottom of the page ---> ground floor
