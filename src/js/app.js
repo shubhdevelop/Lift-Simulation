@@ -106,6 +106,8 @@ class Lift {
             let transitionedLift = controller.transitioningLift.shift();
             controller.idleLifts.push(transitionedLift);
             callLift(undefined, controller.unfullfilledCalls.shift().callFloor);
+            this.html.childNodes[1].style.animation = `none`;
+            this.html.childNodes[3].style.animation = `none`;
           }
         }, 5000);
       }, this.#calcTransitionTime(netFloorToMove, 1000));
