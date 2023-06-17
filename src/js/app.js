@@ -153,11 +153,7 @@ function callLift(e) {
   let floorNo = e.target.dataset.floorno;
 
   if (controller.occupiedFloor[floorNo] == false) {
-    if (
-      controller.idleLifts.length == 0 &&
-      controller.liftQueue.length != 0 &&
-      controller.occupiedFloor[floorNo] == false
-    ) {
+    if (controller.idleLifts.length == 0 && controller.liftQueue.length != 0) {
       if (controller.currLift.status == undefined) {
         Controller.dequeueMoveEnqueue(floorNo, controller);
       } else if (controller.currLift.status !== "idle") {
@@ -165,8 +161,7 @@ function callLift(e) {
       }
     } else if (
       controller.idleLifts.length == 0 &&
-      controller.liftQueue.length == 0 &&
-      controller.occupiedFloor[floorNo] == false
+      controller.liftQueue.length == 0
     ) {
       alert("all lifts are busy");
     } else if (controller.idleLifts.length != 0) {

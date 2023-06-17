@@ -9,8 +9,9 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100vw;
+  width: 100%;
   background-color: pink;
+  overflow: hidden;
   height: 100%;
 }
 
@@ -119,6 +120,7 @@ body {
   right: 0;
   top: -20px;
   text-align: center;
+  z-index: 1;
 }
 /* .door-left-animation {
   animation-name: left-door-animation;
